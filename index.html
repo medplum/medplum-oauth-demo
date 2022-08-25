@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Medplum OAuth Demo</title>
+</head>
+
+<body>
+  <button>Go</button>
+  <script>
+
+    document.querySelector('button').addEventListener('click', () => {
+      const url = new URL('https://api.medplum.com/oauth2/authorize');
+      url.searchParams.set('client_id', '8bb0d37a-bed4-47d2-b317-05192b1f651b');
+      url.searchParams.set('redirect_uri', 'http://localhost:8000/redirect.html');
+      url.searchParams.set('response_type', 'code');
+      url.searchParams.set('scope', 'openid');
+      window.location.href = url.toString();
+    });
+
+  </script>
+</body>
+
+</html>
