@@ -6,17 +6,78 @@
 </head>
 
 <body>
-  <button>Go</button>
+  <button id="login">Login</button>
+  <button id="userinfo">User Info</button>
+  <button id="practitioners">Practitioners</button>
+  <pre id="output" style="width: 800px; height: 500px; border: 1px solid #888; overflow: auto;"></pre>
   <script>
 
-    document.querySelector('button').addEventListener('click', () => {
-      const url = new URL('https://api.medplum.com/oauth2/authorize');
-      url.searchParams.set('client_id', '8bb0d37a-bed4-47d2-b317-05192b1f651b');
-      url.searchParams.set('redirect_uri', 'http://localhost:8000/redirect.html');
+    // Config settings
+    // Replace these with your values from your ClientApplication
+    const clientId = '8bb0d37a-bed4-47d2-b317-05192b1f651b';
+    const redirectUri = 'http://localhost:8000/';
+
+    // OAuth URLs
+    // These are the URLs for Medplum's hosted servers
+    // Replace these settings with your values if self-hosting
+    const baseUrl = 'https://api.medplum.com/';
+    const authorizeUrl = baseUrl + 'oauth2/authorize';
+    const tokenUrl = baseUrl + 'oauth2/token';
+
+    // Access token
+    // Set this on successful authentication
+    let accessToken = undefined;
+
+    // The code check
+    // If the current URL includes a "code" query string param, then we can exchange it for a token
+    const code = new URLSearchParams(window.location.search).get('code');
+    if (code) {
+      // Build the form data
+      const body = new URLSearchParams();
+      body.set('grant_type', 'authorization_code');
+      body.set('client_id', clientId);
+      body.set('code', code);
+
+      // Exchange the authorization code for an access token
+      fetch(tokenUrl, { method: 'POST', body })
+        .then(res => res.json())
+        .then(res => accessToken = res.access_token);
+    }
+
+    // The login button handler
+    // The user can click this button to initiate the OAuth flow
+    document.getElementById('login').addEventListener('click', () => {
+      const url = new URL(authorizeUrl);
+      url.searchParams.set('client_id', clientId);
+      url.searchParams.set('redirect_uri', redirectUri);
       url.searchParams.set('response_type', 'code');
       url.searchParams.set('scope', 'openid');
       window.location.href = url.toString();
     });
+
+    // The userinfo button handler
+    // Use the access token to call the "/userinfo" to get current user details
+    // Display the output in the window
+    document.getElementById('userinfo').addEventListener('click', () => {
+      sendRequest(baseUrl + 'oauth2/userinfo');
+    });
+
+    // The practitioners button handler
+    // Use the access token to call the "/userinfo" to get current user details
+    // Display the output in the window
+    document.getElementById('practitioners').addEventListener('click', () => {
+      sendRequest(baseUrl + 'fhir/R4/Practitioner');
+    });
+
+    function sendRequest(url) {
+      fetch(url, { credentials: 'include', headers: { 'Authorization': 'Bearer ' + accessToken } })
+        .then(res => res.json())
+        .then(showOutput);
+    }
+
+    function showOutput(obj) {
+      document.getElementById('output').innerHTML = JSON.stringify(obj, null, 2);
+    }
 
   </script>
 </body>
