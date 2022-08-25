@@ -41,6 +41,7 @@
       // Exchange the authorization code for an access token
       fetch(tokenUrl, { method: 'POST', body })
         .then(res => res.json())
+        .then(showOutput)
         .then(res => accessToken = res.access_token);
     }
 
@@ -77,6 +78,7 @@
 
     function showOutput(obj) {
       document.getElementById('output').innerHTML = JSON.stringify(obj, null, 2);
+      return obj;
     }
 
   </script>
