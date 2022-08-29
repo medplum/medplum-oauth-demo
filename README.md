@@ -26,7 +26,7 @@ python -m http.server 8000
 Or using npm `http-server`:
 
 ```bash
-npx http-server ./ -p 8000
+npx http-server ./ -p 8000 -c-1
 ```
 
 Open your web browser to <http://localhost:8000/>
